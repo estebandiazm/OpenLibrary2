@@ -59,24 +59,27 @@ class ViewController: UIViewController , UITextFieldDelegate{
             if nil != data {
                 let json = try JSONSerialization.jsonObject(with:data!, options: JSONSerialization.ReadingOptions(rawValue: 0))
                 let rootJson = json as! NSDictionary
-                let book = rootJson["ISBN:"+isbnField.text!] as! NSDictionary
-                let title = book["title"] as! NSString as String
-                print(title)
-                titleBookLabel.text = title
-                let authors = book["authors"] as! [[String:Any]]
-                setAuthors(authors: authors)
-                let covers = book["cover"] as! NSDictionary?
-                if nil != covers {
-                    let coverURL = covers!["medium"] as!NSString as String
-                    downloadImage(coverURL)
+                let book = rootJson["ISBN:"+isbnField.text!] as! NSDictionary?
+                if nil != book {
+                    let title = book!["title"] as! NSString as String
+                    print(title)
+                    titleBookLabel.text = title
+                    let authors = book!["authors"] as! [[String:Any]]
+                    setAuthors(authors: authors)
+                    let covers = book!["cover"] as! NSDictionary?
+                    if nil != covers {
+                        let coverURL = covers!["medium"] as!NSString as String
+                        downloadImage(coverURL)
+                    }
+                } else {
+                    alert(message: "Book not found")
                 }
             } else {
                 isConnError = true
             }
-            
         }
         catch _ {
-            
+            isConnError = true
         }
     }
     
@@ -126,6 +129,13 @@ class ViewController: UIViewController , UITextFieldDelegate{
     @IBAction func clearAction(_ sender: UIButton) {
         isbnField.text = ""
         presentAlertController(withTitle: "Internet connection error", message: "Verify internet connection")
+    }
+    
+    func alert(message: String, title: String = "") {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(OKAction)
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 
